@@ -5,6 +5,7 @@ import com.eirs.duplicate.constants.NotificationLanguage;
 import com.eirs.duplicate.repository.ConfigRepository;
 import com.eirs.duplicate.repository.entity.SysParam;
 import com.eirs.duplicate.repository.entity.SystemConfigKeys;
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,7 @@ public class SystemConfigurationServiceImpl implements SystemConfigurationServic
 
     private String featureName;
 
+    @PostConstruct
     public void init() {
         featureName = alertConfig.getProcessId();
     }

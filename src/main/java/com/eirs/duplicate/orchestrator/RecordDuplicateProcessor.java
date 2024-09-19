@@ -11,6 +11,7 @@ import com.eirs.duplicate.service.ModuleAlertService;
 import com.eirs.duplicate.service.ModuleAuditTrailService;
 import com.eirs.duplicate.service.QueryExecutorService;
 import com.eirs.duplicate.service.SystemConfigurationService;
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +62,7 @@ public class RecordDuplicateProcessor implements DuplicateProcessor {
 
     @Autowired
     private AlertConfig alertConfig;
-
+    @PostConstruct
     public void init() {
         MODULE_NAME = alertConfig.getProcessId();
     }

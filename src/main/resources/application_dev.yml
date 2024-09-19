@@ -27,7 +27,7 @@ notification:
 
 alerts:
   postUrl: http://127.0.0.1:9504/eir/alert
-  processId: FileCreation
+  processId: Duplicate
   alerts-mapping:
     DATABASE_EXCEPTION:
       alertId: ALERT2020
