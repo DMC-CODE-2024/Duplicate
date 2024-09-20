@@ -1,6 +1,7 @@
 package com.eirs.duplicate.orchestrator;
 
 import com.eirs.duplicate.alerts.AlertConfig;
+import com.eirs.duplicate.config.AppConfig;
 import com.eirs.duplicate.constants.ModuleNames;
 import com.eirs.duplicate.constants.SmsPlaceHolders;
 import com.eirs.duplicate.constants.SmsTag;
@@ -56,7 +57,7 @@ public class CheckDuplicateOrch {
     @Autowired
     DuplicateImeiService duplicateImeiService;
     @Autowired
-    AlertConfig alertConfig;
+    AppConfig appConfig;
 
     @Transactional
     public void process(FileDataDto fileData) {
@@ -148,7 +149,7 @@ public class CheckDuplicateOrch {
                 map.put(SmsPlaceHolders.REQUEST_ID, duplicate.getTransactionId());
                 map.put(SmsPlaceHolders.MSISDN, duplicate.getMsisdn());
                 map.put(SmsPlaceHolders.DATE_DD_MMM_YYYY, DateFormatterConstants.notificationSmsDateFormat.format(duplicate.getExpiryDate()));
-                NotificationDetailsDto notificationDetailsDto = NotificationDetailsDto.builder().msisdn(duplicate.getMsisdn()).transactionId(duplicate.getTransactionId()).smsTag(SmsTag.DuplicateSms).smsPlaceHolder(map).language(null).moduleName(alertConfig.getProcessId()).build();
+                NotificationDetailsDto notificationDetailsDto = NotificationDetailsDto.builder().msisdn(duplicate.getMsisdn()).transactionId(duplicate.getTransactionId()).smsTag(SmsTag.DuplicateSms).smsPlaceHolder(map).language(null).moduleName(appConfig.getModuleName()).build();
                 notificationService.sendSmsInWindow(notificationDetailsDto);
             }
         } catch (NotificationException e) {

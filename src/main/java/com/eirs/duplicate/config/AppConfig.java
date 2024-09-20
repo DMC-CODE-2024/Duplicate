@@ -12,8 +12,14 @@ import org.springframework.web.client.RestTemplate;
 public class AppConfig {
 
 
-    @Value("${notification.url}")
+    @Value("${eirs.notification.url}")
     private String notificationUrl;
+
+    @Value("${module-name}")
+    private String moduleName;
+
+    @Value("${dependent.module-name}")
+    private String dependentModuleName;
 
     @Value("${spring.datasource.driver-class-name}")
     private String driverClassName;

@@ -5,9 +5,9 @@ public interface SystemConfigKeys {
     String allowed_device_type  = "allowed_device_type";
 
     String default_language = "default_lang";
-    String duplicate_notification_sms_start_time = "notification_sms_start_time";
+    String duplicate_notification_sms_start_time = "duplicate_notification_sms_start_time";
 
-    String duplicate_notification_sms_end_time = "notification_sms_end_time";
+    String duplicate_notification_sms_end_time = "duplicate_notification_sms_end_time";
 
     String allowed_duplicate_count = "allowed_duplicate_count";
 

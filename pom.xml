@@ -9,8 +9,8 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.eirs</groupId>
-    <artifactId>eirs-duplicate</artifactId>
-    <version>1.0.0.1</version>
+    <artifactId>duplicate</artifactId>
+    <version>1.0.0</version>
     <name>file-duplicate-module</name>
     <description>File Duplicate Module</description>
     <properties>
@@ -73,6 +73,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
             <optional>true</optional>
         </dependency>
         <dependency>
