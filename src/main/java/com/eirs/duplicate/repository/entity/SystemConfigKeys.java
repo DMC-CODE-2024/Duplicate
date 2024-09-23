@@ -2,7 +2,7 @@ package com.eirs.duplicate.repository.entity;
 
 public interface SystemConfigKeys {
 
-    String allowed_device_type  = "allowed_device_type";
+    String allowed_device_type  = "duplicate_allowed_device_type";
 
     String default_language = "default_lang";
     String duplicate_notification_sms_start_time = "duplicate_notification_sms_start_time";
