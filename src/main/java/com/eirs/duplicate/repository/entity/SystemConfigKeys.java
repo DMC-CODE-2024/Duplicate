@@ -9,11 +9,11 @@ public interface SystemConfigKeys {
 
     String duplicate_notification_sms_end_time = "duplicate_notification_sms_end_time";
 
-    String allowed_duplicate_count = "allowed_duplicate_count";
+    String allowed_duplicate_count = "duplicate_allowed_count";
 
     String duplicate_window_time_in_sec = "duplicate_window_time_in_sec";
 
     String duplicate_expiry_days = "duplicate_expiry_days";
 
-    String send_duplication_notification_flag = "send_duplication_notification_flag";
+    String send_duplication_notification_flag = "duplication_send_notification_flag";
 }
