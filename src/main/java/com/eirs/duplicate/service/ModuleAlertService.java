@@ -61,13 +61,15 @@ public class ModuleAlertService {
         Map<AlertMessagePlaceholders, String> map = new HashMap<>();
         map.put(AlertMessagePlaceholders.CONFIG_KEY, configKey);
         map.put(AlertMessagePlaceholders.CONFIG_VALUE, configValue);
+        map.put(AlertMessagePlaceholders.FEATURE_NAME, featureName);
         alertService.sendAlert(AlertIds.CONFIGURATION_VALUE_WRONG, map);
     }
 
-    public void sendSmsNotSentAlert(String error, String sms) {
+    public void sendSmsNotSentAlert(String error, String sms, String featureName) {
         Map<AlertMessagePlaceholders, String> map = new HashMap<>();
         map.put(AlertMessagePlaceholders.EXCEPTION, error);
         map.put(AlertMessagePlaceholders.SMS, sms);
+        map.put(AlertMessagePlaceholders.FEATURE_NAME, featureName);
         alertService.sendAlert(AlertIds.NOTIFICATION_SEND_EXCEPTION, map);
     }
 

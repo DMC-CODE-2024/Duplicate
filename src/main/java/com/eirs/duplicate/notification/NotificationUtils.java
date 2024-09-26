@@ -39,7 +39,7 @@ public class NotificationUtils {
             log.info("Notification Request:{}, Response:{}", notificationDto, responseEntity);
             return responseEntity.getBody();
         } catch (Exception e) {
-            moduleAlertService.sendSmsNotSentAlert(e.getMessage(), notificationDto.getMessage());
+            moduleAlertService.sendSmsNotSentAlert(e.getMessage(), notificationDto.getMessage(), notificationDto.getFeatureName());
             log.error("Error while Calling Notification API Error:{} Request:{}", e.getMessage(), notificationDto, e);
             NotificationResponseDto responseDto = new NotificationResponseDto();
             responseDto.setMessage("FAIL");
