@@ -1,10 +1,13 @@
 package com.eirs.duplicate.service;
 
 import com.eirs.duplicate.dto.DuplicateDataDto;
+import com.eirs.duplicate.dto.EdrCurrentRecordTime;
 import com.eirs.duplicate.dto.FileDataDto;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,11 +16,16 @@ import java.util.*;
 @Service
 public class CheckDuplicateServiceImpl implements CheckDuplicateService {
 
-    private Map<String, NavigableMap<LocalDateTime, Set<FileDataDto>>> timeSeriesMap = new HashMap<>();
+    @Autowired
+    @Qualifier("timeSeriesMap")
+    private Map<String, NavigableMap<LocalDateTime, Set<FileDataDto>>> timeSeriesMap;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     SystemConfigurationService systemConfigurationService;
+
+    @Autowired
+    EdrCurrentRecordTime edrCurrentRecordTime;
 
     public boolean isTimeSeriesDataPresentForImei(FileDataDto fileData) {
         return timeSeriesMap.get(fileData.getImei()) == null ? false : true;
@@ -36,6 +44,7 @@ public class CheckDuplicateServiceImpl implements CheckDuplicateService {
             imeiTimeSeriesMap.put(fileData.getDate(), imsieSet);
         }
         imsieSet.add(fileData);
+        edrCurrentRecordTime.setTime(fileData.getDate());
     }
 
     public DuplicateDataDto checkDuplicate(FileDataDto fileData) {

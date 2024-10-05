@@ -1,5 +1,6 @@
 package com.eirs.duplicate;
 
+import com.eirs.duplicate.monitors.HashMapMonitorTask;
 import com.eirs.duplicate.orchestrator.RecordDuplicateProcessor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ public class Application {
     public static void main(String[] args) {
 
         ApplicationContext context = SpringApplication.run(Application.class, args);
+        new Thread(context.getBean(HashMapMonitorTask.class)).start();
         LocalDate date = LocalDate.parse(args[0], DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         context.getBean(RecordDuplicateProcessor.class).process(date);
         System.exit(0);

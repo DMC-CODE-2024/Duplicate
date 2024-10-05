@@ -7,6 +7,7 @@ import com.eirs.duplicate.repository.entity.Duplicate;
 import com.eirs.duplicate.repository.entity.Pairing;
 import com.eirs.duplicate.service.SystemConfigurationService;
 import com.eirs.duplicate.utils.RandomIdGeneratorUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -56,6 +57,14 @@ public class DuplicateMapper {
         duplicate.setTransactionId(RandomIdGeneratorUtil.generateRequestId());
         duplicate.setOperator(fileDataDto.getOperator());
         return duplicate;
+    }
+
+    public List<Duplicate> toDuplicates(List<FileDataDto> fileDataDtos) {
+        List<Duplicate> duplicates = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(fileDataDtos)) {
+            fileDataDtos.stream().forEach(fileDataDto -> duplicates.add(toDuplicate(fileDataDto)));
+        }
+        return duplicates;
     }
 
     public List<Duplicate> toDuplicate(List<Pairing> pairings) {

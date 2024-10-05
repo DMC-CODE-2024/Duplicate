@@ -10,4 +10,6 @@ import java.util.List;
 public interface DuplicateRepository extends JpaRepository<Duplicate, Long> {
 
     public List<Duplicate> findByImei(String imei);
+
+    public List<Duplicate> findByImeiAndImsie(String imei, String imsie);
 }

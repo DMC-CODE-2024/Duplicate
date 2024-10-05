@@ -63,12 +63,12 @@ public class CheckDuplicateOrch {
     public void process(FileDataDto fileData) {
         try {
             log.info("Processing fileData:{}", fileData);
-            if (invalidImeiService.isPresent(fileData.getImei())) {
+           /* if (invalidImeiService.isPresent(fileData.getImei())) {
                 log.info("Not Processing for duplicate as found in Invalid Imei fileData:{}", fileData);
                 return;
-            }
+            }*/
 
-            if (duplicateImeiService.isPresent(fileData.getImei())) {
+            if (duplicateImeiService.isPresentFromCache(fileData.getImei())) {
                 Duplicate savedDuplicate = duplicateService.save(duplicateMapper.toDuplicate(fileData));
                 if (savedDuplicate.getId() != null) {
                     sendNotification(savedDuplicate);
@@ -155,5 +155,13 @@ public class CheckDuplicateOrch {
         } catch (NotificationException e) {
             log.info("Notification not sent for duplicate:{}", duplicate);
         }
+    }
+
+    public Integer batchInsertDuplicate(List<FileDataDto> fileDataDtos) {
+        List<Duplicate> duplicates = duplicateService.saveAll(duplicateMapper.toDuplicates(fileDataDtos));
+        duplicates.stream().forEach(duplicate -> {
+            sendNotification(duplicate);
+        });
+        return duplicates.size();
     }
 }

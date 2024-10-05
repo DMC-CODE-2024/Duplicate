@@ -10,8 +10,11 @@ public interface DuplicateService {
 
     List<Duplicate> save(List<Duplicate> duplicates);
 
-    List<Duplicate> getByImei(String imei);
-    Boolean isAvailable(String imei);
+    List<Duplicate> saveAll(List<Duplicate> duplicates);
 
-    Boolean isNotAvailable(String imei);
+    List<Duplicate> getByImei(String imei);
+
+    Boolean isAvailable(String imei, String imsie);
+
+    Boolean isNotAvailable(String imei, String imsie);
 }

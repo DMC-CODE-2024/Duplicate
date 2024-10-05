@@ -11,4 +11,6 @@ public interface DuplicateImeiService {
     DuplicateImei save(DuplicateImei duplicate);
 
     Boolean isPresent(String imei);
+
+    Boolean isPresentFromCache(String imei);
 }

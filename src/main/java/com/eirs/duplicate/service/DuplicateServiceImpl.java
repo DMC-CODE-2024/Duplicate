@@ -18,10 +18,11 @@ public class DuplicateServiceImpl implements DuplicateService {
 
     @Override
     public Duplicate save(Duplicate duplicate) {
-        if (isNotAvailable(duplicate.getImei())) {
+        if (isNotAvailable(duplicate.getImei(), duplicate.getImsie())) {
+            long start = System.currentTimeMillis();
             log.info("Saving Duplicate:{}", duplicate);
             duplicate = duplicateRepository.save(duplicate);
-            log.info("Saved Duplicate:{}", duplicate);
+            log.info("Saved Duplicate:{} TimeTaken:{}", duplicate, (System.currentTimeMillis() - start));
         }
         return duplicate;
     }
@@ -36,25 +37,36 @@ public class DuplicateServiceImpl implements DuplicateService {
     }
 
     @Override
-    public List<Duplicate> getByImei(String imei) {
-        log.info("Finding in duplicate table using imei : {}", imei);
-        List<Duplicate> duplicates = duplicateRepository.findByImei(imei);
-        log.info("Get Duplicate for Imei:{} Duplicate:{}", imei, duplicates);
+    public List<Duplicate> saveAll(List<Duplicate> duplicates) {
+        long start = System.currentTimeMillis();
+        log.info("Saving to Duplicate Batch duplicates:{}", duplicates);
+        duplicates = duplicateRepository.saveAll(duplicates);
+        log.info("Saved to Duplicate Batch duplicates:{} TimeTaken:{}", duplicates, (System.currentTimeMillis() - start));
         return duplicates;
     }
 
     @Override
-    public Boolean isAvailable(String imei) {
+    public List<Duplicate> getByImei(String imei) {
+        long start = System.currentTimeMillis();
         log.info("Finding in duplicate table using imei : {}", imei);
         List<Duplicate> duplicates = duplicateRepository.findByImei(imei);
-        log.info("Get Duplicate for Imei:{} Duplicate:{}", imei, duplicates);
+        log.info("Get Duplicate for Imei:{} Duplicate:{} TimeTaken:{}", imei, duplicates, (System.currentTimeMillis() - start));
+        return duplicates;
+    }
+
+    @Override
+    public Boolean isAvailable(String imei, String imsie) {
+        long start = System.currentTimeMillis();
+        log.info("Finding in duplicate table using imei : {} imsie:{}", imei, imsie);
+        List<Duplicate> duplicates = duplicateRepository.findByImeiAndImsie(imei, imsie);
+        log.info("Get Duplicate for Imei:{} imsie:{} Duplicate:{} TimeTaken:{}", imei, imsie, duplicates, (System.currentTimeMillis() - start));
         if (CollectionUtils.isEmpty(duplicates))
             return false;
         return true;
     }
 
     @Override
-    public Boolean isNotAvailable(String imei) {
-        return !isAvailable(imei);
+    public Boolean isNotAvailable(String imei, String imsie) {
+        return !isAvailable(imei, imsie);
     }
 }

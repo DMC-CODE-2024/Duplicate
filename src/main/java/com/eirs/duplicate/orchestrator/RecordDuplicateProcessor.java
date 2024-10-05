@@ -16,14 +16,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -67,10 +72,11 @@ public class RecordDuplicateProcessor implements DuplicateProcessor {
             log.info("Process:{} will not execute it may already Running or Completed for the day {}", appConfig.getModuleName(), localDate);
             return;
         }
-        moduleAuditTrailService.createAudit(ModuleAuditTrail.builder().moduleName(appConfig.getModuleName()).featureName(appConfig.getModuleName()).build());
+        moduleAuditTrailService.createAudit(ModuleAuditTrail.builder().createdOn(LocalDateTime.of(localDate, LocalTime.now())).moduleName(appConfig.getModuleName()).featureName(appConfig.getModuleName()).build());
         Long start = System.currentTimeMillis();
         ModuleAuditTrail updateModuleAuditTrail = ModuleAuditTrail.builder().moduleName(appConfig.getModuleName()).featureName(appConfig.getModuleName()).build();
-        String query = "SELECT id,edr_date_time,actual_imei,imsi,msisdn,operator_name,file_name,is_gsma_valid,is_custom_paid,tac,device_type from app.edr_" + localDate.format(dateTimeFormatter) + " where device_type in (" + getAllowedDeviceTypes() + ") and is_gsma_valid=1 order by edr_date_time";
+        insertIntoDuplicateDeviceFromEdr(localDate);
+        String query = "SELECT id,edr_date_time,actual_imei,imsi,msisdn,operator_name,file_name,is_gsma_valid,is_custom_paid,tac,device_type from app.edr_" + localDate.format(dateTimeFormatter) + " where device_type in (" + getAllowedDeviceTypes() + ") and is_gsma_valid=1 and is_duplicate=0 order by edr_date_time";
         log.info("Selecting Records with Query:[{}]", query);
         try {
             jdbcTemplate.setFetchSize(Integer.MIN_VALUE);
@@ -84,6 +90,7 @@ public class RecordDuplicateProcessor implements DuplicateProcessor {
                     fileData.setImsie(rs.getString("imsi"));
                     fileData.setMsisdn(rs.getString("msisdn"));
                     fileData.setOperator(rs.getString("operator_name"));
+                    log.info("Picked Record: {}", fileData);
                     if (!StringUtils.isNumeric(fileData.getActualImei())) {
                         log.info("Not Processing this due to Alpha Numeric of actual_imei recordDataDto:{}", fileData);
                     }
@@ -115,6 +122,29 @@ public class RecordDuplicateProcessor implements DuplicateProcessor {
         updateModuleAuditTrail.setTimeTaken(System.currentTimeMillis() - start);
         updateModuleAuditTrail.setCount(counter.get());
         moduleAuditTrailService.updateAudit(updateModuleAuditTrail);
+    }
+
+    private Integer insertIntoDuplicateDeviceFromEdr(LocalDate localDate) {
+        String query = "SELECT id,edr_date_time,actual_imei,imsi,msisdn,operator_name,file_name,is_gsma_valid,is_custom_paid,tac,device_type from app.edr_" + localDate.format(dateTimeFormatter) + " where is_duplicate=1";
+        log.info("Selecting Records with Query:[{}]", query);
+        List<FileDataDto> fileDataDtos = jdbcTemplate.query(query, new RowMapper<FileDataDto>() {
+            @Override
+            public FileDataDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+                FileDataDto fileData = new FileDataDto();
+                fileData.setDate(rs.getTimestamp("edr_date_time").toLocalDateTime());
+                fileData.setFilename(rs.getString("file_name"));
+                fileData.setActualImei(rs.getString("actual_imei"));
+                fileData.setImsie(rs.getString("imsi"));
+                fileData.setMsisdn(rs.getString("msisdn"));
+                fileData.setOperator(rs.getString("operator_name"));
+                if (fileData.getActualImei().length() >= 14)
+                    fileData.setImei(fileData.getActualImei().substring(0, 14));
+                else
+                    fileData.setImei(fileData.getActualImei());
+                return fileData;
+            }
+        });
+        return checkDuplicateOrch.batchInsertDuplicate(fileDataDtos);
     }
 
     private String getAllowedDeviceTypes() {
