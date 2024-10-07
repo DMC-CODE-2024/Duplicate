@@ -10,6 +10,7 @@ import com.eirs.duplicate.dto.FileDataDto;
 import com.eirs.duplicate.dto.NotificationDetailsDto;
 import com.eirs.duplicate.exceptions.NotificationException;
 import com.eirs.duplicate.mapper.DuplicateMapper;
+import com.eirs.duplicate.monitors.HashMapMonitorTask;
 import com.eirs.duplicate.repository.entity.BlacklistDevice;
 import com.eirs.duplicate.repository.entity.Duplicate;
 import com.eirs.duplicate.repository.entity.DuplicateImei;
@@ -59,7 +60,9 @@ public class CheckDuplicateOrch {
     @Autowired
     AppConfig appConfig;
 
-    @Transactional
+    @Autowired
+    HashMapMonitorTask hashMapMonitorTask;
+
     public void process(FileDataDto fileData) {
         try {
             log.info("Processing fileData:{}", fileData);
@@ -149,8 +152,8 @@ public class CheckDuplicateOrch {
                 map.put(SmsPlaceHolders.REQUEST_ID, duplicate.getTransactionId());
                 map.put(SmsPlaceHolders.MSISDN, duplicate.getMsisdn());
                 map.put(SmsPlaceHolders.DATE_DD_MMM_YYYY, DateFormatterConstants.notificationSmsDateFormat.format(duplicate.getExpiryDate()));
-                NotificationDetailsDto notificationDetailsDto = NotificationDetailsDto.builder().msisdn(duplicate.getMsisdn()).transactionId(duplicate.getTransactionId()).smsTag(SmsTag.DuplicateSms).smsPlaceHolder(map).language(null).moduleName(appConfig.getModuleName()).build();
-                notificationService.sendSmsInWindow(notificationDetailsDto);
+//                NotificationDetailsDto notificationDetailsDto = NotificationDetailsDto.builder().msisdn(duplicate.getMsisdn()).transactionId(duplicate.getTransactionId()).smsTag(SmsTag.DuplicateSms).smsPlaceHolder(map).language(null).moduleName(appConfig.getModuleName()).build();
+//                notificationService.sendSmsInWindow(notificationDetailsDto);
             }
         } catch (NotificationException e) {
             log.info("Notification not sent for duplicate:{}", duplicate);

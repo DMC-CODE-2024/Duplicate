@@ -21,7 +21,7 @@ public class Application {
     public static void main(String[] args) {
 
         ApplicationContext context = SpringApplication.run(Application.class, args);
-        new Thread(context.getBean(HashMapMonitorTask.class)).start();
+        new Thread(context.getBean(HashMapMonitorTask.class), "HashMapMonitorTask").start();
         LocalDate date = LocalDate.parse(args[0], DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         context.getBean(RecordDuplicateProcessor.class).process(date);
         System.exit(0);

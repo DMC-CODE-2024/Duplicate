@@ -30,27 +30,42 @@ public class HashMapMonitorTask implements Runnable {
 
     @Override
     public void run() {
+        int counter = 0;
         log.info("HashMapMonitorTask Thread Started");
-        List<String> removeKeys = new ArrayList<>();
         while (true) {
+            if (timeSeriesMap.size() == 0) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(1);
+                } catch (Exception e) {
+                    log.error("EHashMapMonitorTask when timeSeriesMap is ZERO Error:{}", e.getMessage(), e);
+                }
+                continue;
+            }
+            List<String> removeKeys = new ArrayList<>();
             try {
-                timeSeriesMap.forEach((imei, imeiTimeSeriesMap) -> {
-                    LocalDateTime lastDateTime = imeiTimeSeriesMap.lastEntry().getKey();
+                log.info("Starting Remove MemorySizeTotal:{} MemoryFreeSize:{} timeSeriesMap:{}", Runtime.getRuntime().totalMemory(), Runtime.getRuntime().freeMemory(), timeSeriesMap.size());
+                for (String imei : timeSeriesMap.keySet()) {
+                    LocalDateTime lastDateTime = timeSeriesMap.get(imei).lastEntry().getKey();
                     LocalDateTime windowTime = edrCurrentRecordTime.getTime().minusSeconds(systemConfigurationService.getDuplicateWindowTimeInSec());
 //                    log.info("removing key trying to find imei:{} lastDateTime:{} windowTime:{}", imei, lastDateTime, windowTime);
                     try {
                         if (lastDateTime.isBefore(windowTime)) {
-                            log.info("Added for localDateTime:{} is before windowTime: {} remove key :{}", lastDateTime, windowTime, imei);
+//                            log.info("Added for localDateTime:{} is before windowTime: {} remove key :{}", lastDateTime, windowTime, imei);
                             removeKeys.add(imei);
+                            if (counter > 1000) {
+                                TimeUnit.NANOSECONDS.sleep(1);
+                                counter = 0;
+                            }
+
                         }
-                        TimeUnit.NANOSECONDS.sleep(1);
                     } catch (Exception e) {
                         log.error("Exception in monitoring while iterating timeSeriesMap thread Error:{}", e.getMessage(), e);
                     }
-                });
+                    counter++;
+                }
                 removeKeys.forEach(imei -> timeSeriesMap.remove(imei));
-                removeKeys.clear();
-                TimeUnit.SECONDS.sleep(1);
+                log.info("Finally Removing MemorySizeTotal:{} MemoryFreeSize:{} IMEI Keys:{} timeSeriesMap:{}", Runtime.getRuntime().totalMemory(), Runtime.getRuntime().freeMemory(), removeKeys.size(), timeSeriesMap.size());
+//                TimeUnit.SECONDS.sleep(1);
             } catch (Exception e) {
                 log.error("Exception in monitoring thread Error:{}", e.getMessage(), e);
             }

@@ -22,7 +22,11 @@ public class DuplicateImeiServiceImpl implements DuplicateImeiService {
     public DuplicateImei save(DuplicateImei duplicateImei) {
         if (!isPresentFromCache(duplicateImei.getImei())) {
             duplicateImei.setStatus("DUPLICATE");
-            duplicateImei = duplicateImeiRepository.save(duplicateImei);
+            try {
+                duplicateImei = duplicateImeiRepository.save(duplicateImei);
+            } catch (Exception e) {
+                log.error("Error while saving into Duplicate Imei duplicateImei:{} Error:{}", duplicateImei, e.getMessage());
+            }
             cache.put(duplicateImei.getImei(), Boolean.TRUE);
             return duplicateImei;
         } else {
