@@ -20,17 +20,21 @@ public class DuplicateImeiServiceImpl implements DuplicateImeiService {
 
     @Override
     public DuplicateImei save(DuplicateImei duplicateImei) {
-        if (!isPresentFromCache(duplicateImei.getImei())) {
-            duplicateImei.setStatus("DUPLICATE");
-            try {
-                duplicateImei = duplicateImeiRepository.save(duplicateImei);
-            } catch (Exception e) {
-                log.error("Error while saving into Duplicate Imei duplicateImei:{} Error:{}", duplicateImei, e.getMessage());
+        try {
+            if (!isPresentFromCache(duplicateImei.getImei())) {
+                duplicateImei.setStatus("DUPLICATE");
+                try {
+                    duplicateImei = duplicateImeiRepository.save(duplicateImei);
+                } catch (Exception e) {
+                    log.error("Error while saving into Duplicate Imei duplicateImei:{} Error:{}", duplicateImei, e.getMessage());
+                }
+                cache.put(duplicateImei.getImei(), Boolean.TRUE);
+                return duplicateImei;
+            } else {
+                log.info("DuplicateImei Already exist {}", duplicateImei);
             }
-            cache.put(duplicateImei.getImei(), Boolean.TRUE);
-            return duplicateImei;
-        } else {
-            log.info("DuplicateImei Already exist {}", duplicateImei);
+        } catch (Exception e) {
+            log.error("Error while saving to Duplicate Imei:{} Error:{}", duplicateImei, e.getMessage(), e);
         }
         return duplicateImei;
     }

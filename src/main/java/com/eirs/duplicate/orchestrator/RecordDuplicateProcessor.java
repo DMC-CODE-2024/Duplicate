@@ -1,22 +1,16 @@
 package com.eirs.duplicate.orchestrator;
 
-import com.eirs.duplicate.alerts.AlertConfig;
 import com.eirs.duplicate.config.AppConfig;
-import com.eirs.duplicate.constants.AuditQueriesConstant;
-import com.eirs.duplicate.constants.DBType;
 import com.eirs.duplicate.dto.FileDataDto;
 import com.eirs.duplicate.repository.entity.ModuleAuditTrail;
-import com.eirs.duplicate.repository.entity.SystemConfigKeys;
 import com.eirs.duplicate.service.ModuleAlertService;
 import com.eirs.duplicate.service.ModuleAuditTrailService;
 import com.eirs.duplicate.service.QueryExecutorService;
 import com.eirs.duplicate.service.SystemConfigurationService;
-import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
@@ -62,19 +56,21 @@ public class RecordDuplicateProcessor implements DuplicateProcessor {
     @Autowired
     private AppConfig appConfig;
 
+    final String MODULE_NAME = "duplicate";
+
     @Override
     public void process(LocalDate localDate) {
-        if (!moduleAuditTrailService.previousDependentModuleExecuted(localDate, appConfig.getDependentModuleName())) {
-            log.info("Process:{} will not execute as already Dependent Module:{} Not Executed for the day {}", appConfig.getModuleName(), appConfig.getDependentModuleName(), localDate);
+        if (!moduleAuditTrailService.previousDependentModuleExecuted(localDate, appConfig.getDependentFeatureName())) {
+            log.info("Process:{} will not execute as already Dependent Module:{} Not Executed for the day {}", appConfig.getFeatureName(), appConfig.getDependentFeatureName(), localDate);
             return;
         }
-        if (!moduleAuditTrailService.runProcess(localDate, appConfig.getModuleName())) {
-            log.info("Process:{} will not execute it may already Running or Completed for the day {}", appConfig.getModuleName(), localDate);
+        if (!moduleAuditTrailService.runProcess(localDate, appConfig.getFeatureName())) {
+            log.info("Process:{} will not execute it may already Running or Completed for the day {}", appConfig.getFeatureName(), localDate);
             return;
         }
-        moduleAuditTrailService.createAudit(ModuleAuditTrail.builder().createdOn(LocalDateTime.of(localDate, LocalTime.now())).moduleName(appConfig.getModuleName()).featureName(appConfig.getModuleName()).build());
+        moduleAuditTrailService.createAudit(ModuleAuditTrail.builder().createdOn(LocalDateTime.of(localDate, LocalTime.now())).moduleName(MODULE_NAME).featureName(appConfig.getFeatureName()).build());
         Long start = System.currentTimeMillis();
-        ModuleAuditTrail updateModuleAuditTrail = ModuleAuditTrail.builder().moduleName(appConfig.getModuleName()).featureName(appConfig.getModuleName()).build();
+        ModuleAuditTrail updateModuleAuditTrail = ModuleAuditTrail.builder().moduleName(MODULE_NAME).featureName(appConfig.getFeatureName()).build();
         insertIntoDuplicateDeviceFromEdr(localDate);
         String query = "SELECT id,edr_date_time,actual_imei,imsi,msisdn,operator_name,file_name,is_gsma_valid,is_custom_paid,tac,device_type from app.edr_" + localDate.format(dateTimeFormatter) + " where device_type in (" + getAllowedDeviceTypes() + ") and is_gsma_valid=1 and is_duplicate=0 order by edr_date_time";
         log.info("Selecting Records with Query:[{}]", query);
@@ -112,10 +108,10 @@ public class RecordDuplicateProcessor implements DuplicateProcessor {
             updateModuleAuditTrail.setStatusCode(200);
         } catch (org.springframework.dao.InvalidDataAccessResourceUsageException e) {
             log.error("Error {}", e.getCause().getMessage(), e);
-            moduleAlertService.sendDatabaseAlert(e.getCause().getMessage(), appConfig.getModuleName());
+            moduleAlertService.sendDatabaseAlert(e.getCause().getMessage(), appConfig.getFeatureName());
             updateModuleAuditTrail.setStatusCode(500);
         } catch (Exception e) {
-            moduleAlertService.sendModuleExecutionAlert(e.getMessage(), appConfig.getModuleName());
+            moduleAlertService.sendModuleExecutionAlert(e.getMessage(), appConfig.getFeatureName());
             log.error("Error while Processing Query:{} Error:{} ", query, e.getMessage(), e);
             updateModuleAuditTrail.setStatusCode(500);
         }
