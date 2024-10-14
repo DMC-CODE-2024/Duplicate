@@ -152,7 +152,7 @@ public class CheckDuplicateOrch {
                 map.put(SmsPlaceHolders.REQUEST_ID, duplicate.getTransactionId());
                 map.put(SmsPlaceHolders.MSISDN, duplicate.getMsisdn());
                 map.put(SmsPlaceHolders.DATE_DD_MMM_YYYY, DateFormatterConstants.notificationSmsDateFormat.format(duplicate.getExpiryDate()));
-                NotificationDetailsDto notificationDetailsDto = NotificationDetailsDto.builder().msisdn(duplicate.getMsisdn()).transactionId(duplicate.getTransactionId()).smsTag(SmsTag.DuplicateSms).smsPlaceHolder(map).language(null).moduleName(appConfig.getModuleName()).build();
+                NotificationDetailsDto notificationDetailsDto = NotificationDetailsDto.builder().msisdn(duplicate.getMsisdn()).transactionId(duplicate.getTransactionId()).smsTag(SmsTag.DuplicateSms).smsPlaceHolder(map).language(systemConfigurationService.getDefaultLanguage()).moduleName(appConfig.getFeatureName()).build();
                 notificationService.sendSmsInWindow(notificationDetailsDto);
             }
         } catch (NotificationException e) {
