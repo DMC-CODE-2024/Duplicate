@@ -22,7 +22,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -71,7 +74,8 @@ public class RecordDuplicateProcessor implements DuplicateProcessor {
         moduleAuditTrailService.createAudit(ModuleAuditTrail.builder().createdOn(LocalDateTime.of(localDate, LocalTime.now())).moduleName(MODULE_NAME).featureName(appConfig.getFeatureName()).build());
         Long start = System.currentTimeMillis();
         ModuleAuditTrail updateModuleAuditTrail = ModuleAuditTrail.builder().moduleName(MODULE_NAME).featureName(appConfig.getFeatureName()).build();
-        insertIntoDuplicateDeviceFromEdr(localDate);
+        int saved = insertIntoDuplicateDeviceFromEdr(localDate);
+        counter.set(saved);
         String query = "SELECT id,edr_date_time,actual_imei,imsi,msisdn,operator_name,file_name,is_gsma_valid,is_custom_paid,tac,device_type from app.edr_" + localDate.format(dateTimeFormatter) + " where device_type in (" + getAllowedDeviceTypes() + ") and is_gsma_valid=1 and is_duplicate=0 order by edr_date_time";
         log.info("Selecting Records with Query:[{}]", query);
         try {
@@ -123,9 +127,11 @@ public class RecordDuplicateProcessor implements DuplicateProcessor {
     private Integer insertIntoDuplicateDeviceFromEdr(LocalDate localDate) {
         String query = "SELECT id,edr_date_time,actual_imei,imsi,msisdn,operator_name,file_name,is_gsma_valid,is_custom_paid,tac,device_type from app.edr_" + localDate.format(dateTimeFormatter) + " where is_duplicate=1";
         log.info("Selecting Records with Query:[{}]", query);
-        List<FileDataDto> fileDataDtos = jdbcTemplate.query(query, new RowMapper<FileDataDto>() {
+
+        Set<FileDataDto> set = new HashSet<>();
+        jdbcTemplate.query(query, new RowCallbackHandler() {
             @Override
-            public FileDataDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+            public void processRow(ResultSet rs) throws SQLException {
                 FileDataDto fileData = new FileDataDto();
                 fileData.setDate(rs.getTimestamp("edr_date_time").toLocalDateTime());
                 fileData.setFilename(rs.getString("file_name"));
@@ -137,10 +143,11 @@ public class RecordDuplicateProcessor implements DuplicateProcessor {
                     fileData.setImei(fileData.getActualImei().substring(0, 14));
                 else
                     fileData.setImei(fileData.getActualImei());
-                return fileData;
+                set.add(fileData);
             }
         });
-        return checkDuplicateOrch.batchInsertDuplicate(fileDataDtos);
+
+        return checkDuplicateOrch.batchInsertDuplicate(new ArrayList<>(set));
     }
 
     private String getAllowedDeviceTypes() {

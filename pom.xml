@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.eirs</groupId>
-    <artifactId>duplicate</artifactId>
+    <artifactId>duplicate_identify</artifactId>
     <version>1.0.0</version>
     <name>file-duplicate-module</name>
     <description>File Duplicate Module</description>

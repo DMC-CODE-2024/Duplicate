@@ -31,7 +31,7 @@ public class SmsConfigurationServiceImpl implements SmsConfigurationService {
         try {
             if (language == null)
                 language = systemConfigurationService.getDefaultLanguage();
-            SmsConfigurationEntity smsConfiguration = smsConfigurationEntityRepository.findByTagAndLanguageAndModule(tag, language, moduleName);
+            SmsConfigurationEntity smsConfiguration = smsConfigurationEntityRepository.findByTagAndLanguage(tag, language);
             if (smsConfiguration == null) {
                 retVal = "";
                 moduleAlertService.sendSmsConfigMissingAlert(tag.name(), moduleName, language.name());

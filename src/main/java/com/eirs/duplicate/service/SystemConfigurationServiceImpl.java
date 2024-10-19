@@ -75,7 +75,7 @@ public class SystemConfigurationServiceImpl implements SystemConfigurationServic
     public Set<String> getAllowedDeviceTypes() throws RuntimeException {
         String key = SystemConfigKeys.allowed_device_type;
         if (CollectionUtils.isEmpty(deviceTypes)) {
-            List<SysParam> values = repository.findByConfigKeyAndModule(key, appConfig.getFeatureName());
+            List<SysParam> values = repository.findByConfigKey(key);
             if (CollectionUtils.isEmpty(values)) {
                 moduleAlertService.sendConfigurationMissingAlert(key, appConfig.getFeatureName());
                 throw new RuntimeException("Missing Key in Sys Param " + SystemConfigKeys.allowed_device_type);
@@ -90,7 +90,7 @@ public class SystemConfigurationServiceImpl implements SystemConfigurationServic
     public LocalTime getNotificationSmsStartTime() {
         String key = SystemConfigKeys.duplicate_notification_sms_start_time;
         if (notificationSmsStartTime == null) {
-            List<SysParam> values = repository.findByConfigKeyAndModule(key, appConfig.getFeatureName());
+            List<SysParam> values = repository.findByConfigKey(key);
             if (!CollectionUtils.isEmpty(values)) {
                 String value = values.get(0).getConfigValue();
                 try {
@@ -115,7 +115,7 @@ public class SystemConfigurationServiceImpl implements SystemConfigurationServic
     public LocalTime getNotificationSmsEndTime() {
         String key = SystemConfigKeys.duplicate_notification_sms_end_time;
         if (notificationSmsEndTime == null) {
-            List<SysParam> values = repository.findByConfigKeyAndModule(key, appConfig.getFeatureName());
+            List<SysParam> values = repository.findByConfigKey(key);
             if (!CollectionUtils.isEmpty(values)) {
                 String value = values.get(0).getConfigValue();
                 try {
@@ -139,7 +139,7 @@ public class SystemConfigurationServiceImpl implements SystemConfigurationServic
     public Integer getAllowedDuplicateCount() {
         String key = SystemConfigKeys.allowed_duplicate_count;
         if (allowedDuplicateCount == null) {
-            List<SysParam> values = repository.findByConfigKeyAndModule(key, appConfig.getFeatureName());
+            List<SysParam> values = repository.findByConfigKey(key);
             if (!CollectionUtils.isEmpty(values)) {
                 String value = values.get(0).getConfigValue();
                 try {
@@ -162,7 +162,7 @@ public class SystemConfigurationServiceImpl implements SystemConfigurationServic
     public Integer getDuplicateWindowTimeInSec() {
         String key = SystemConfigKeys.duplicate_window_time_in_sec;
         if (duplicateWindowTimeInMin == null) {
-            List<SysParam> values = repository.findByConfigKeyAndModule(key, appConfig.getFeatureName());
+            List<SysParam> values = repository.findByConfigKey(key);
             if (!CollectionUtils.isEmpty(values)) {
                 String value = values.get(0).getConfigValue();
                 try {
@@ -185,7 +185,7 @@ public class SystemConfigurationServiceImpl implements SystemConfigurationServic
     public Integer getDuplicateExpiryDays() {
         String key = SystemConfigKeys.duplicate_expiry_days;
         if (duplicateExpiryDays == null) {
-            List<SysParam> values = repository.findByConfigKeyAndModule(key, appConfig.getFeatureName());
+            List<SysParam> values = repository.findByConfigKey(key);
             if (!CollectionUtils.isEmpty(values)) {
                 String value = values.get(0).getConfigValue();
                 try {
@@ -208,7 +208,7 @@ public class SystemConfigurationServiceImpl implements SystemConfigurationServic
     public Boolean sendDuplicationNotificationFlag() {
         String key = SystemConfigKeys.send_duplication_notification_flag;
         if (sendDuplicationNotification == null) {
-            List<SysParam> values = repository.findByConfigKeyAndModule(key, appConfig.getFeatureName());
+            List<SysParam> values = repository.findByConfigKey(key);
             if (!CollectionUtils.isEmpty(values)) {
                 String value = values.get(0).getConfigValue();
                 if (StringUtils.equalsAnyIgnoreCase(value, "YES", "TRUE"))

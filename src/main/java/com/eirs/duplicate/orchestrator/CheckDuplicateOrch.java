@@ -65,6 +65,7 @@ public class CheckDuplicateOrch {
 
     public void process(FileDataDto fileData) {
         try {
+            hashMapMonitorTask.checkForRemoval();
             log.info("Processing fileData:{}", fileData);
            /* if (invalidImeiService.isPresent(fileData.getImei())) {
                 log.info("Not Processing for duplicate as found in Invalid Imei fileData:{}", fileData);

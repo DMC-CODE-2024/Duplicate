@@ -9,7 +9,5 @@ import java.util.List;
 @Repository
 public interface ConfigRepository extends JpaRepository<SysParam, Long> {
 
-    public List<SysParam> findByConfigKeyAndModule(String configKey, String module);
-
     public List<SysParam> findByConfigKey(String configKey);
 }

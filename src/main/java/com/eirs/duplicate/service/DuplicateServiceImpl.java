@@ -39,9 +39,9 @@ public class DuplicateServiceImpl implements DuplicateService {
     @Override
     public List<Duplicate> saveAll(List<Duplicate> duplicates) {
         long start = System.currentTimeMillis();
-        log.info("Saving to Duplicate Batch duplicates:{}", duplicates);
+        log.info("Saving to Duplicate Batch duplicates");
         duplicates = duplicateRepository.saveAll(duplicates);
-        log.info("Saved to Duplicate Batch duplicates:{} TimeTaken:{}", duplicates, (System.currentTimeMillis() - start));
+        log.info("Saved to Duplicate Batch duplicates TimeTaken:{}", (System.currentTimeMillis() - start));
         return duplicates;
     }
 

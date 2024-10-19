@@ -71,4 +71,35 @@ public class HashMapMonitorTask implements Runnable {
             }
         }
     }
+
+    public void checkForRemoval() {
+        int counter = 0;
+        if (timeSeriesMap.size() < 300000)
+            return;
+        List<String> removeKeys = new ArrayList<>();
+        try {
+            log.info("Starting Remove MemorySizeTotal:{} MemoryFreeSize:{} timeSeriesMap:{}", Runtime.getRuntime().totalMemory(), Runtime.getRuntime().freeMemory(), timeSeriesMap.size());
+            for (String imei : timeSeriesMap.keySet()) {
+                LocalDateTime lastDateTime = timeSeriesMap.get(imei).lastEntry().getKey();
+                LocalDateTime windowTime = edrCurrentRecordTime.getTime().minusSeconds(systemConfigurationService.getDuplicateWindowTimeInSec());
+                try {
+                    if (lastDateTime.isBefore(windowTime)) {
+                        removeKeys.add(imei);
+                        if (counter > 1000) {
+                            TimeUnit.NANOSECONDS.sleep(1);
+                            counter = 0;
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("Exception in monitoring while iterating timeSeriesMap thread Error:{}", e.getMessage(), e);
+                }
+                counter++;
+            }
+            removeKeys.forEach(imei -> timeSeriesMap.remove(imei));
+            log.info("Finally Removing MemorySizeTotal:{} MemoryFreeSize:{} IMEI Keys:{} timeSeriesMap:{}", Runtime.getRuntime().totalMemory(), Runtime.getRuntime().freeMemory(), removeKeys.size(), timeSeriesMap.size());
+        } catch (Exception e) {
+            log.error("Exception in monitoring thread Error:{}", e.getMessage(), e);
+        }
+
+    }
 }
