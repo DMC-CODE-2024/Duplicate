@@ -1,5 +1,6 @@
 package com.eirs.duplicate;
 
+import com.eirs.duplicate.alerts.AlertServiceImpl;
 import com.eirs.duplicate.monitors.HashMapMonitorTask;
 import com.eirs.duplicate.orchestrator.RecordDuplicateProcessor;
 import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
@@ -26,6 +27,7 @@ public class Application {
 //        new Thread(context.getBean(HashMapMonitorTask.class), "HashMapMonitorTask").start();
         LocalDate date = LocalDate.parse(args[0], DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         context.getBean(RecordDuplicateProcessor.class).process(date);
+        context.getBean(AlertServiceImpl.class).emptyAlertQueue();
         System.exit(0);
     }
 
