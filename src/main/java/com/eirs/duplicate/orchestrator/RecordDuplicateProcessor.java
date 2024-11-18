@@ -74,11 +74,11 @@ public class RecordDuplicateProcessor implements DuplicateProcessor {
         moduleAuditTrailService.createAudit(ModuleAuditTrail.builder().createdOn(LocalDateTime.of(localDate, LocalTime.now())).moduleName(MODULE_NAME).featureName(appConfig.getFeatureName()).build());
         Long start = System.currentTimeMillis();
         ModuleAuditTrail updateModuleAuditTrail = ModuleAuditTrail.builder().moduleName(MODULE_NAME).featureName(appConfig.getFeatureName()).build();
-        int saved = insertIntoDuplicateDeviceFromEdr(localDate);
-        counter.set(saved);
         String query = "SELECT id,edr_date_time,actual_imei,imsi,msisdn,operator_name,file_name,is_gsma_valid,is_custom_paid,tac,device_type from app.edr_" + localDate.format(dateTimeFormatter) + " where device_type in (" + getAllowedDeviceTypes() + ") and is_gsma_valid=1 and is_duplicate=0 order by edr_date_time";
         log.info("Selecting Records with Query:[{}]", query);
         try {
+            int saved = insertIntoDuplicateDeviceFromEdr(localDate);
+            counter.set(saved);
             jdbcTemplate.setFetchSize(Integer.MIN_VALUE);
             jdbcTemplate.query(query, new RowCallbackHandler() {
                 @Override
