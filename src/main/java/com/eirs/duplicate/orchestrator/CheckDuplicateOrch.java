@@ -145,16 +145,20 @@ public class CheckDuplicateOrch {
     private void sendNotification(Duplicate duplicate) {
         try {
             if (systemConfigurationService.sendDuplicationNotificationFlag()) {
-                Map<SmsPlaceHolders, String> map = new HashMap<>();
-                map.put(SmsPlaceHolders.OPERATOR, duplicate.getOperator());
-                map.put(SmsPlaceHolders.IMSI, duplicate.getImsie());
-                map.put(SmsPlaceHolders.IMEI, duplicate.getImei());
-                map.put(SmsPlaceHolders.ACTUAL_IMEI, duplicate.getActualImei());
-                map.put(SmsPlaceHolders.REQUEST_ID, duplicate.getTransactionId());
-                map.put(SmsPlaceHolders.MSISDN, duplicate.getMsisdn());
-                map.put(SmsPlaceHolders.DATE_DD_MMM_YYYY, DateFormatterConstants.notificationSmsDateFormat.format(duplicate.getExpiryDate()));
-                NotificationDetailsDto notificationDetailsDto = NotificationDetailsDto.builder().msisdn(duplicate.getMsisdn()).transactionId(duplicate.getTransactionId()).smsTag(SmsTag.DuplicateSms).smsPlaceHolder(map).language(systemConfigurationService.getDefaultLanguage()).moduleName(appConfig.getFeatureName()).build();
-                notificationService.sendSmsInWindow(notificationDetailsDto);
+                if (StringUtils.isBlank(duplicate.getMsisdn())) {
+                    log.info("Not Sending Notification as Msisdn missing {}", duplicate);
+                } else {
+                    Map<SmsPlaceHolders, String> map = new HashMap<>();
+                    map.put(SmsPlaceHolders.OPERATOR, duplicate.getOperator());
+                    map.put(SmsPlaceHolders.IMSI, duplicate.getImsie());
+                    map.put(SmsPlaceHolders.IMEI, duplicate.getImei());
+                    map.put(SmsPlaceHolders.ACTUAL_IMEI, duplicate.getActualImei());
+                    map.put(SmsPlaceHolders.REQUEST_ID, duplicate.getTransactionId());
+                    map.put(SmsPlaceHolders.MSISDN, duplicate.getMsisdn());
+                    map.put(SmsPlaceHolders.DATE_DD_MMM_YYYY, DateFormatterConstants.notificationSmsDateFormat.format(duplicate.getExpiryDate()));
+                    NotificationDetailsDto notificationDetailsDto = NotificationDetailsDto.builder().msisdn(duplicate.getMsisdn()).transactionId(duplicate.getTransactionId()).smsTag(SmsTag.DuplicateSms).smsPlaceHolder(map).language(systemConfigurationService.getDefaultLanguage()).moduleName(appConfig.getFeatureName()).build();
+                    notificationService.sendSmsInWindow(notificationDetailsDto);
+                }
             }
         } catch (NotificationException e) {
             log.info("Notification not sent for duplicate:{}", duplicate);
