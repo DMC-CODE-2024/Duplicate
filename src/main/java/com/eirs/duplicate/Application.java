@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 @EnableScheduling
@@ -28,7 +29,13 @@ public class Application {
         LocalDate date = LocalDate.parse(args[0], DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         context.getBean(RecordDuplicateProcessor.class).process(date);
         context.getBean(AlertServiceImpl.class).emptyAlertQueue();
-        System.exit(0);
+        try {
+            TimeUnit.SECONDS.sleep(1);
+            System.exit(0);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 }
