@@ -53,6 +53,17 @@ public class AlertServiceImpl implements AlertService {
 
 
     @Override
+    public void sendAlertNow(AlertIds alertIds, Map<AlertMessagePlaceholders, String> placeHolderMap) {
+        AlertConfigDto configDto = alertConfig.getAlertsMapping().get(alertIds);
+        if (configDto == null) {
+            log.error("Message not configured for AlertId:{}", alertIds);
+        } else {
+            String alertId = configDto.getAlertId();
+            callAlertUrl(AlertDto.builder().alertId(alertId).placeHolderMap(placeHolderMap).alertProcess(appConfig.getFeatureName()).build());
+        }
+    }
+
+    @Override
     public void sendAlert(AlertIds alertIds, Map<AlertMessagePlaceholders, String> placeHolderMap) {
         AlertConfigDto configDto = alertConfig.getAlertsMapping().get(alertIds);
         if (configDto == null) {

@@ -51,13 +51,18 @@ public class SystemConfigurationServiceImpl implements SystemConfigurationServic
 
     @PostConstruct
     public void init() {
-        getAllowedDeviceTypes();
-        getAllowedDuplicateCount();
-        getNotificationSmsEndTime();
-        getNotificationSmsStartTime();
-        getDuplicateExpiryDays();
-        getDuplicateWindowTimeInSec();
+        try {
+            getAllowedDeviceTypes();
+            getAllowedDuplicateCount();
+            getNotificationSmsEndTime();
+            getNotificationSmsStartTime();
+            getDuplicateExpiryDays();
+            getDuplicateWindowTimeInSec();
+        } catch(Exception e){
+            log.error(e.getMessage(),e);
+        }
     }
+
 
     @Override
     public NotificationLanguage getDefaultLanguage() {

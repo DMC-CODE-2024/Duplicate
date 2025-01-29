@@ -44,9 +44,9 @@ public class ModuleAlertService {
         map.put(AlertMessagePlaceholders.EXCEPTION, error);
         map.put(AlertMessagePlaceholders.FEATURE_NAME, featureName);
         if (error.contains("doesn't exist")) {
-            alertService.sendAlert(AlertIds.DATABASE_TABLE_EXCEPTION, map);
+            alertService.sendAlertNow(AlertIds.DATABASE_TABLE_EXCEPTION, map);
         } else {
-            alertService.sendAlert(AlertIds.DATABASE_EXCEPTION, map);
+            alertService.sendAlertNow(AlertIds.DATABASE_EXCEPTION, map);
         }
     }
 
@@ -62,7 +62,7 @@ public class ModuleAlertService {
         map.put(AlertMessagePlaceholders.CONFIG_KEY, configKey);
         map.put(AlertMessagePlaceholders.CONFIG_VALUE, configValue);
         map.put(AlertMessagePlaceholders.FEATURE_NAME, featureName);
-        alertService.sendAlert(AlertIds.CONFIGURATION_VALUE_WRONG, map);
+        alertService.sendAlertNow(AlertIds.CONFIGURATION_VALUE_WRONG, map);
     }
 
     public void sendSmsNotSentAlert(String error, String sms, String featureName) {
