@@ -36,7 +36,7 @@ public class ModuleAlertService {
         map.put(AlertMessagePlaceholders.CONFIG_KEY, configKey);
         map.put(AlertMessagePlaceholders.FEATURE_NAME, featureName);
         map.put(AlertMessagePlaceholders.LANGUAGE, language);
-        alertService.sendAlertNow(AlertIds.SMS_VALUE_MISSING, map);
+        alertService.sendAlert(AlertIds.SMS_VALUE_MISSING, map);
     }
 
     public void sendDatabaseAlert(String error, String featureName) {
